@@ -39,6 +39,8 @@ export default class GameScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(lebarDunia / 2, tinggiDunia / 2, "player", 0)
         .setScale(2).setCollideWorldBounds(true);
 
+        this._buatAnimasi();
+
         this.physics.world.setBounds(0, 0, lebarDunia, tinggiDunia);
 
         this.cameras.main.setBounds(0, 0, lebarDunia, tinggiDunia);
@@ -72,6 +74,9 @@ export default class GameScene extends Phaser.Scene {
 
     update() {
         this._gerakanPlayer();
+        const px = Math.floor(this.player.x);
+        const py = Math.floor(this.player.y);
+        this.textDebug.setText(`Posisi: ${px}, ${py} | WASD untuk gerak`);
         this._updateDebug();
     }
 
@@ -125,6 +130,37 @@ export default class GameScene extends Phaser.Scene {
         g.fillRect(x2 - tebal, y1, 2, tinggi);
     }
 
+    _buatAnimasi() {
+        const ANIM = [
+            { key: "idele_bawah", start: 0, end: 5, rate: 8, flip: false },
+            { key: "idele_kiri", start: 6, end: 11, rate: 8, flip: false },
+            { key: "idele_kanan", start: 6, end: 11, rate: 8, flip: true },
+            { key: "idele_atas", start: 12, end: 17, rate: 8, flip: false },
+
+            { key: "jalan_bawah", start: 18, end: 23, rate: 10, flip: false },
+            { key: "jalan_kiri", start: 24, end: 29, rate: 10, flip: false },
+            { key: "jalan_kanan", start: 24, end: 29, rate: 10, flip: true },
+            { key: "jalan_atas", start: 30, end: 35, rate: 10, flip: false },
+
+            { key: "serang_bawah", start: 36, end: 39, rate: 12, flip: false },
+            { key: "serang_kiri", start: 42, end: 45, rate: 12, flip: false },
+            { key: "serang_kanan", start: 42, end: 45, rate: 12, flip: true },
+            { key: "serang_atas", start: 48, end: 51, rate: 12, flip: false },
+        ]
+
+        ANIM.forEach(({ key, start, end, rate, flip }) => {
+            if (this.anims.exists(key)) return;
+            this.anims.create({
+                key,
+                frames: this.anims.generateFrameNames("player", { start, end }),
+                frameRate: rate,
+                repeat: -1,
+            });
+        });
+
+        this.arahHadap = "bawah";
+    }
+
     _gerakanPlayer() {
         const k = this.kursor;
         let vx = 0;
@@ -141,6 +177,24 @@ export default class GameScene extends Phaser.Scene {
         }
 
         this.player.setVelocity(vx, vy);
+
+        const bergerak = vx !== 0 || vy !== 0;
+
+        if (bergerak) {
+            if (Math.abs(vx) >= Math.abs(vy)) {
+                if (vx < 0) {
+                    this.arahHadap = "kiri";
+                    this.player.setFlipX(false);
+                    this.player.anims.play("jalan_kiri", true);
+                } else {
+                    this.arahHadap = "kanan";
+                    this.player.setFlipX(true);
+                    this.player.anims.play("jalan_kiri", true);
+                }
+            } else {
+                
+            }
+        }
 
         if (vx === 0 && vy === 0) {
             this.player.setFrame(0);
