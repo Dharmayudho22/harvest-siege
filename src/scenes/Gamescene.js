@@ -77,7 +77,6 @@ export default class GameScene extends Phaser.Scene {
         const px = Math.floor(this.player.x);
         const py = Math.floor(this.player.y);
         this.textDebug.setText(`Posisi: ${px}, ${py} | WASD untuk gerak`);
-        this._updateDebug();
     }
 
     _gambarRumah(x, y) {
@@ -101,7 +100,7 @@ export default class GameScene extends Phaser.Scene {
     _gambarPagar(x1, y1, x2, y2) {
         const g = this.add.graphics().setDepth(5);
         const lebar = x2 - x1;
-        const tinggi = y2 - y2;
+        const tinggi = y2 - y1;
         const tebal = 6;
         const warna = 0x8b5e3c;
         const warnaGelap = 0x5c3d1e;
@@ -132,10 +131,10 @@ export default class GameScene extends Phaser.Scene {
 
     _buatAnimasi() {
         const ANIM = [
-            { key: "idele_bawah", start: 0, end: 5, rate: 8, flip: false },
-            { key: "idele_kiri", start: 6, end: 11, rate: 8, flip: false },
-            { key: "idele_kanan", start: 6, end: 11, rate: 8, flip: true },
-            { key: "idele_atas", start: 12, end: 17, rate: 8, flip: false },
+            { key: "idle_bawah", start: 0, end: 5, rate: 8, flip: false },
+            { key: "idle_kiri", start: 6, end: 11, rate: 8, flip: false },
+            { key: "idle_kanan", start: 6, end: 11, rate: 8, flip: true },
+            { key: "idle_atas", start: 12, end: 17, rate: 8, flip: false },
 
             { key: "jalan_bawah", start: 18, end: 23, rate: 10, flip: false },
             { key: "jalan_kiri", start: 24, end: 29, rate: 10, flip: false },
@@ -152,7 +151,7 @@ export default class GameScene extends Phaser.Scene {
             if (this.anims.exists(key)) return;
             this.anims.create({
                 key,
-                frames: this.anims.generateFrameNames("player", { start, end }),
+                frames: this.anims.generateFrameNumbers("player", { start, end }),
                 frameRate: rate,
                 repeat: -1,
             });
@@ -184,30 +183,28 @@ export default class GameScene extends Phaser.Scene {
             if (Math.abs(vx) >= Math.abs(vy)) {
                 if (vx < 0) {
                     this.arahHadap = "kiri";
-                    this.player.setFlipX(false);
+                    this.player.setFlipX(true);
                     this.player.anims.play("jalan_kiri", true);
                 } else {
                     this.arahHadap = "kanan";
-                    this.player.setFlipX(true);
+                    this.player.setFlipX(false);
                     this.player.anims.play("jalan_kiri", true);
                 }
             } else {
-                
+                if (vy < 0) {
+                    this.arahHadap = "atas";
+                    this.player.setFlipX(false);
+                    this.player.anims.play("jalan_atas", true);
+                }else {
+                    this.arahHadap = "bawah";
+                    this.player.setFlipX(false);
+                    this.player.anims.play("jalan_bawah", true);
+                }
             }
-        }
-
-        if (vx === 0 && vy === 0) {
-            this.player.setFrame(0);
         } else {
-            this.player.setFrame(
-                Math.floor(this.time.now / 200) % 4 === 0 ? 0 : 1
-            );
+            this.player.setFlipX(this.arahHadap === "kiri");
+            const idleKey = this.arahHadap === "kanan" || this.arahHadap === "kiri"? "idle_kiri": `idle_${this.arahHadap}`;
+            this.player.anims.play(idleKey, true);
         }
-    }
-
-    _updateDebug() {
-        const px = Math.floor(this.player.x);
-        const py = Math.floor(this.player.y);
-        this.textDebug.setText(`Posisi: ${px}, ${py}`);
     }
 }
