@@ -24,20 +24,32 @@ export default class GameScene extends Phaser.Scene {
             latar.lineBetween(0, y, lebarDunia, y);
         }
 
-        for (let baris = 0; baris < TILE.MAP_ROWS; baris++) {
-            for (let kolom = 0; kolom < TILE.MAP_COLS; kolom++) {
-                this.add.image(kolom * TILE.SIZE, baris * TILE.SIZE, "rumput").setOrigin(0, 0);
-            }
-        }
+        // for (let baris = 0; baris < TILE.MAP_ROWS; baris++) {
+        //     for (let kolom = 0; kolom < TILE.MAP_COLS; kolom++) {
+        //         this.add.image(kolom * TILE.SIZE, baris * TILE.SIZE, "rumput").setOrigin(0, 0);
+        //     }
+        // }
 
-        this._gambarRumah(300, 300);
-        this._gambarRumah(600, 250);
-        this._gambarRumah(900, 350);
+        this.objekSolid = this.physics.add.staticGroup();
 
-        this._gambarPagar(200, 200, 800, 600);
+        this._gambarPagar(420, 380, 860, 750, {
+            pintuSisi: "bawah",
+            pintuLebar: 64,
+        });
+
+        this._gambarRumah(455, 415);
+        this._gambarRumah(660, 415);
+        this._gambarRumah(555, 570);
+
+        //this._gambarPagar(200, 200, 800, 600);
 
         this.player = this.physics.add.sprite(lebarDunia / 2, tinggiDunia / 2, "player", 0)
         .setScale(2).setCollideWorldBounds(true);
+
+        this.player.body.setSize(20, 20);
+        this.player.body.setOffset(6, 12);
+
+        this.physics.add.collider(this.player, this.objekSolid);
 
         this._buatAnimasi();
 
